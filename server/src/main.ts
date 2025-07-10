@@ -42,7 +42,7 @@ app.post('/upload-story', upload.single('image'), async (req: Request, res: Resp
   const imageBuffer: Buffer = req.file.buffer;
   const eyepopResults = await callEyepop(imageBuffer)
   const oxenResult = await chatWithOxen(`
-    Give an interesting summary of the bottles and cups in this scene: 
+    Give an interesting summary this scene: 
     ${JSON.stringify(eyepopResults)}  
   `)
   res.send(oxenResult);
@@ -59,7 +59,7 @@ app.post('/upload-inventory', upload.single('image'), async (req: Request, res: 
   const eyepopResults = await callEyepop(imageBuffer)
   console
   const oxenResult = await chatWithOxen(`
-    Give a simple summary of this scene of bottles and cups only: 
+    Give an interesting summary of this scene of bottles and cups only: 
     ${JSON.stringify(eyepopResults)}  
   `)
   res.send(oxenResult);
