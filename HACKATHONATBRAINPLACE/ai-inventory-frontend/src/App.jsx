@@ -3,11 +3,9 @@ import './App.css'
 
 function App() {
   const [image, setImage] = useState(null)
-  const [inventory, setInventory] = useState([])
-  const [info, setInfo] = useState(null)
-  const [query, setQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [serverResponse, setServerResponse] = useState(null)
   const [streaming, setStreaming] = useState(false)
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
@@ -15,8 +13,7 @@ function App() {
   // Start live camera feed
   const startCamera = async () => {
     setError('')
-    setInfo(null)
-    setInventory([])
+    setServerResponse(null)
     setImage(null)
     setStreaming(true)
     try {
@@ -40,7 +37,7 @@ function App() {
       canvas.height = video.videoHeight
       const ctx = canvas.getContext('2d')
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-      const dataUrl = canvas.toDataURL('image/png')
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.8)
       setImage(dataUrl)
       setStreaming(false)
       // Stop the camera
@@ -50,93 +47,107 @@ function App() {
     }
   }
 
-  // Upload image to API and await response
-  const uploadImage = async () => {
+  // Send image to server
+  const sendToServer = async () => {
+    if (!image) return
+    
     setLoading(true)
     setError('')
-    setInfo(null)
-    setInventory([])
-    // Simulate API call
-    setTimeout(() => {
-      setInventory([
-        { name: 'Apple', description: 'A red fruit', id: 1 },
-        { name: 'Banana', description: 'A yellow fruit', id: 2 },
-        { name: 'Water Bottle', description: 'Reusable bottle', id: 3 },
-      ])
+    setServerResponse(null)
+    
+    try {
+      const response = await fetch('http://localhost:8080/api/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image: image,
+          timestamp: new Date().toISOString()
+        })
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        setServerResponse(result)
+      } else {
+        setError(`Server error: ${response.status}`)
+      }
+    } catch (err) {
+      setError('Network error - make sure server is running')
+    } finally {
       setLoading(false)
-    }, 2000)
-  }
-
-  // Simulate item info lookup
-  const handleQuery = () => {
-    const item = inventory.find(i => i.name.toLowerCase() === query.toLowerCase())
-    if (item) {
-      setInfo(item)
-      setError('')
-    } else {
-      setInfo(null)
-      setError('Item not found in inventory.')
     }
   }
 
   return (
     <div className="App">
-      <h1>AI Inventory Camera</h1>
+      <h1>Image Analysis App</h1>
+      
       {!streaming && !image && (
-        <button onClick={startCamera} style={{ margin: '1em 0' }}>Start Camera</button>
+        <button onClick={startCamera} style={{ margin: '1em 0', padding: '10px 20px', fontSize: '16px' }}>
+          📷 Start Camera
+        </button>
       )}
+      
       {streaming && (
         <div>
-          <video ref={videoRef} style={{ maxWidth: '300px' }} autoPlay playsInline />
+          <video ref={videoRef} style={{ maxWidth: '100%', width: '400px' }} autoPlay playsInline />
           <div>
-            <button onClick={captureImage} style={{ margin: '1em 0' }}>Capture Image</button>
-          </div>
-        </div>
-      )}
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
-      {image && (
-        <div>
-          <img src={image} alt="Captured" style={{ maxWidth: '300px', margin: '1em 0' }} />
-          <div>
-            <button onClick={uploadImage} disabled={loading} style={{ margin: '1em 0' }}>
-              Upload & Analyze
+            <button onClick={captureImage} style={{ margin: '1em 0', padding: '10px 20px', fontSize: '16px' }}>
+              📸 Capture Image
             </button>
           </div>
         </div>
       )}
-      {loading && (
-        <div style={{ margin: '1em 0' }}>
-          <div className="spinner" style={{ margin: '1em auto', width: 40, height: 40, border: '4px solid #ccc', borderTop: '4px solid #333', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-          <div>Analyzing image...</div>
-        </div>
-      )}
-      {inventory.length > 0 && (
+      
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
+      
+      {image && (
         <div>
-          <h2>Detected Inventory</h2>
-          <ul>
-            {inventory.map(item => (
-              <li key={item.id}>{item.name}</li>
-            ))}
-          </ul>
-          <div style={{ margin: '1em 0' }}>
-            <input
-              type="text"
-              placeholder="Ask about an item (e.g. Apple)"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-            />
-            <button onClick={handleQuery} style={{ marginLeft: '0.5em' }}>Get Info</button>
+          <img src={image} alt="Captured" style={{ maxWidth: '100%', width: '400px', margin: '1em 0' }} />
+          <div>
+            <button 
+              onClick={sendToServer} 
+              disabled={loading} 
+              style={{ margin: '1em 0', padding: '10px 20px', fontSize: '16px' }}
+            >
+              {loading ? 'Sending...' : '📤 Send to Server'}
+            </button>
           </div>
         </div>
       )}
-      {info && (
-        <div style={{ margin: '1em 0', background: '#f0f0f0', padding: '1em', borderRadius: '8px' }}>
-          <h3>Item Info</h3>
-          <strong>{info.name}</strong>: {info.description}
+      
+      {loading && (
+        <div style={{ margin: '1em 0' }}>
+          <div style={{ 
+            margin: '1em auto', 
+            width: 40, 
+            height: 40, 
+            border: '4px solid #ccc', 
+            borderTop: '4px solid #333', 
+            borderRadius: '50%', 
+            animation: 'spin 1s linear infinite' 
+          }} />
+          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+          <div>Sending to server...</div>
         </div>
       )}
-      {error && <div style={{ color: 'red', margin: '1em 0' }}>{error}</div>}
+      
+      {serverResponse && (
+        <div style={{ margin: '1em 0', background: '#f0f0f0', padding: '1em', borderRadius: '8px' }}>
+          <h3>Server Response:</h3>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>
+            {JSON.stringify(serverResponse, null, 2)}
+          </pre>
+        </div>
+      )}
+      
+      {error && (
+        <div style={{ color: 'red', margin: '1em 0', padding: '10px', background: '#ffe6e6', borderRadius: '4px' }}>
+          {error}
+        </div>
+      )}
     </div>
   )
 }
