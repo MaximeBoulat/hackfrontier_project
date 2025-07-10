@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>iPhone Image Analysis System Architecture</title>
+</head>
+
+<body>
+
+    <h1>iPhone Image Analysis System Architecture</h1>
+
+    <h2>System Overview</h2>
+    
+    <p>This system enables iPhone users to capture images and receive automated analysis results through a cloud-based image processing service. The system consists of three main components: a React-based mobile web application, an Express.js backend server, and integration with the Eyepop image analysis service.</p>
+
+    <h2>Architecture Components</h2>
+
+    <h3>Frontend - React Web Application</h3>
+    <p>The frontend is a React-based web application optimized for iPhone browsers that provides:</p>
+    <ul>
+        <li>Camera access and image capture functionality</li>
+        <li>Image preview and confirmation interface</li>
+        <li>Real-time analysis status updates</li>
+        <li>Analysis results display</li>
+    </ul>
+
+    <h3>Backend - Express.js Server</h3>
+    <p>The backend server handles:</p>
+    <ul>
+        <li>Image upload and processing</li>
+        <li>Integration with Eyepop service</li>
+        <li>Response formatting and delivery</li>
+        <li>Error handling and status management</li>
+    </ul>
+
+    <h3>External Service - Eyepop Image Analysis</h3>
+    <p>Third-party service that provides:</p>
+    <ul>
+        <li>Computer vision analysis</li>
+        <li>Image recognition and classification</li>
+        <li>Structured analysis results</li>
+    </ul>
+
+    <h2>System Flow</h2>
+
+    <diagram-widget fileName="SystemFlow.md"></diagram-widget>
+
+    <h2>Communication Protocols</h2>
+
+    <h3>Client-Server Communication</h3>
+    <p>The frontend communicates with the Express backend using RESTful HTTP requests:</p>
+    <ul>
+        <li><strong>POST /api/analyze</strong> - Submit image for analysis</li>
+        <li><strong>GET /api/status/:id</strong> - Check analysis status</li>
+        <li><strong>GET /api/results/:id</strong> - Retrieve analysis results</li>
+    </ul>
+
+    <h3>Server-Eyepop Communication</h3>
+    <p>The Express server communicates with Eyepop through their API:</p>
+    <ul>
+        <li>Image upload via HTTP POST with multipart/form-data</li>
+        <li>Authentication using API keys</li>
+        <li>Response handling in JSON format</li>
+    </ul>
+
+    <h2>Data Flow</h2>
+
+    <h3>Image Processing Workflow</h3>
+    <diagram-widget fileName="ImageProcessingWorkflow.md"></diagram-widget>
+
+    <h3>Request/Response Format</h3>
+    
+    <h4>Image Upload Request</h4>
+    <code>
+    POST /api/analyze
+    Content-Type: multipart/form-data
+    
+    {
+        "image": [binary image data],
+        "timestamp": "2024-01-15T10:30:00Z"
+    }
+    </code>
+
+    <h4>Analysis Response</h4>
+    <code>
+    {
+        "analysisId": "uuid-string",
+        "status": "completed",
+        "results": {
+            "objects": [...],
+            "confidence": 0.95,
+            "metadata": {...}
+        },
+        "timestamp": "2024-01-15T10:30:15Z"
+    }
+    </code>
+
+    <h2>Deployment Architecture</h2>
+
+    <diagram-widget fileName="DeploymentDiagram.md"></diagram-widget>
+
+    <h2>Technology Stack</h2>
+
+    <h3>Frontend Technologies</h3>
+    <ul>
+        <li><strong>React</strong> - Core UI framework</li>
+        <li><strong>TypeScript</strong> - Type safety and development experience</li>
+        <li><strong>Camera API</strong> - Browser-based camera access</li>
+        <li><strong>Fetch API</strong> - HTTP client for backend communication</li>
+    </ul>
+
+    <h3>Backend Technologies</h3>
+    <ul>
+        <li><strong>Express.js</strong> - Web application framework</li>
+        <li><strong>Node.js</strong> - Runtime environment</li>
+        <li><strong>Multer</strong> - File upload handling</li>
+        <li><strong>Axios</strong> - HTTP client for Eyepop API</li>
+    </ul>
+
+    <h2>Security Considerations</h2>
+
+    <h3>Data Protection</h3>
+    <ul>
+        <li>HTTPS encryption for all client-server communication</li>
+        <li>Secure API key management for Eyepop integration</li>
+        <li>Image data temporary storage with automatic cleanup</li>
+    </ul>
+
+    <h3>Access Control</h3>
+    <ul>
+        <li>Rate limiting on image upload endpoints</li>
+        <li>File size and format validation</li>
+        <li>CORS configuration for cross-origin requests</li>
+    </ul>
+
+</body>
+
+</html>
