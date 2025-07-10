@@ -1,6 +1,12 @@
 import { useState, useRef } from 'react'
 import './App.css'
 
+// Global configuration
+const IS_DEVELOPMENT = true; // Set to false for production
+const DEV_SERVER_URL = 'http://localhost:8080';
+const PROD_SERVER_URL = 'https://your-production-domain.com'; // Update with your production URL
+const SERVER_URL = IS_DEVELOPMENT ? DEV_SERVER_URL : PROD_SERVER_URL;
+
 function App() {
   const [image, setImage] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -49,33 +55,50 @@ function App() {
 
   // Send image to server
   const sendToServer = async () => {
-    if (!image) return
+    if (!image || !canvasRef.current) return
     
     setLoading(true)
     setError('')
     setServerResponse(null)
     
     try {
-      const response = await fetch('http://localhost:8080/api/analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          image: image,
-          timestamp: new Date().toISOString()
-        })
-      })
-      
-      if (response.ok) {
-        const result = await response.json()
-        setServerResponse(result)
-      } else {
-        setError(`Server error: ${response.status}`)
-      }
+      // Convert canvas to blob (following the index.html example)
+      canvasRef.current.toBlob(async (blob) => {
+        if (!blob) {
+          setError('Failed to convert image to blob')
+          setLoading(false)
+          return
+        }
+
+        const formData = new FormData()
+        formData.append('image', blob, 'webcam.jpg')
+
+        try {
+          const response = await fetch(`${SERVER_URL}/upload`, {
+            method: 'POST',
+            body: formData,
+          })
+          
+          if (response.ok) {
+            const result = await response.text()
+            // Try to parse as JSON, fallback to text
+            try {
+              const jsonResult = JSON.parse(result)
+              setServerResponse(jsonResult)
+            } catch {
+              setServerResponse(result)
+            }
+          } else {
+            setError(`Server error: ${response.status}`)
+          }
+        } catch (err) {
+          setError('Network error - make sure server is running')
+        } finally {
+          setLoading(false)
+        }
+      }, 'image/jpeg')
     } catch (err) {
-      setError('Network error - make sure server is running')
-    } finally {
+      setError('Failed to process image')
       setLoading(false)
     }
   }
