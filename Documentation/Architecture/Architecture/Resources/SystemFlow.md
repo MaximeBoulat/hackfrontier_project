@@ -21,12 +21,12 @@ flowchart TD
         Oxen
     end
 
-    iPhone --> |"Direct Image Analysis API Call"| Eyepop
-    Eyepop --> |"Return Analysis Results"| iPhone
-    iPhone --> |"Send Data POST /api/process"| NodeJS
+    iPhone --> |"Upload Image POST /api/analyze"| NodeJS
+    NodeJS --> |"Submit Image to EyePop.ai"| Eyepop
+    Eyepop --> |"Return Analysis Results"| NodeJS
     NodeJS --> |"Submit to Oxen.ai"| Oxen
     Oxen --> |"Return Processing Results"| NodeJS
-    NodeJS --> |"Send Response to Frontend"| iPhone
+    NodeJS --> |"Send Final Response to Frontend"| iPhone
 
     classDef clientBox fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
     classDef serverBox fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
