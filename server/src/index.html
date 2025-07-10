@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Webcam Upload</title>
+</head>
+<body>
+  <h1>Webcam Image Upload</h1>
+
+  <video id="video" width="320" height="240" autoplay></video>
+  <br />
+  <button onclick="capture()">Capture & Upload</button>
+
+  <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+
+  <script>
+    // Start the webcam
+    const video = document.getElementById('video');
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => video.srcObject = stream)
+      .catch(err => console.error('Error accessing webcam:', err));
+
+    async function capture() {
+      const canvas = document.getElementById('canvas');
+      const context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Convert canvas image to blob
+      canvas.toBlob(async (blob) => {
+        if (!blob) return alert('Failed to capture image.');
+
+        const formData = new FormData();
+        formData.append('image', blob, 'webcam.jpg');
+
+        try {
+          const response = await fetch('http://localhost:8080/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          const text = await response.text();
+          alert(`Upload response: ${text}`);
+        } catch (err) {
+          console.error('Upload failed:', err);
+          alert('Upload failed');
+        }
+      }, 'image/jpeg');
+    }
+  </script>
+</body>
+</html>
