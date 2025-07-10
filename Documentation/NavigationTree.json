@@ -1,11 +1,31 @@
 [
     {
         "id": 1,
-        "type": "article",
-        "title": "iPhone Image Analysis System Architecture",
+        "type": "folder",
+        "title": "Project documentation",
         "lastModified": "2024-01-15",
-        "folderName": "Architecture",
-        "description": "Complete architecture documentation for iPhone image analysis system with React frontend, Express backend, and Eyepop integration",
-        "url": "Architecture.html"
+        "folderName": "Documentation",
+        "description": "",
+        "children": [
+            {
+                "id": 11,
+                "type": "folder",
+                "title": "Architecture",
+                "lastModified": "2024-01-15",
+                "folderName": "Architecture",
+                "description": "",
+                "children": [
+                    {
+                        "id": 111,
+                        "type": "article",
+                        "title": "iPhone Image Analysis System Architecture",
+                        "lastModified": "2024-01-15",
+                        "folderName": "Architecture",
+                        "description": "Complete architecture documentation for iPhone image analysis system with React frontend, Express backend, and Eyepop integration",
+                        "url": "Architecture.html"
+                    }
+                ]
+            }
+        ]
     }
 ]
