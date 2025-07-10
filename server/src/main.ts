@@ -59,7 +59,7 @@ app.post('/upload-inventory', upload.single('image'), async (req: Request, res: 
   const eyepopResults = await callEyepop(imageBuffer)
   console
   const oxenResult = await chatWithOxen(`
-    Give an interesting summary of this scene of bottles and cups only: 
+    Give a formal inventory report of this scene in a bulleted list with dash. Don't use special formatting. Just - and newlines.:
     ${JSON.stringify(eyepopResults)}  
   `)
   res.send(oxenResult);
