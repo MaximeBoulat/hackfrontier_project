@@ -75,7 +75,8 @@ function App() {
         formData.append('image', blob, 'webcam.jpg')
 
         // Choose endpoint based on analysis mode
-        const endpoint = analysisMode === 'Inventory' ? '/upload-inventory' : '/upload-story'
+        // const endpoint = analysisMode === 'Inventory' ? '/upload-inventory' : '/upload-story'
+        const endpoint = '/upload-inventory' // Default to inventory endpoint
 
         try {
           const response = await fetch(`${SERVER_URL}${endpoint}`, {
@@ -134,8 +135,8 @@ function App() {
         <div>
           <img src={image} alt="Captured" style={{ maxWidth: '100%', width: '400px', margin: '1em 0' }} />
           
-          {/* Analysis Mode Toggle */}
-          <div style={{ margin: '1em 0' }}>
+{/* Analysis Mode Toggle */}
+          {/* <div style={{ margin: '1em 0' }}>
             <div style={{ marginBottom: '0.5em', fontSize: '14px', fontWeight: 'bold' }}>
               Analysis Mode:
             </div>
@@ -171,17 +172,18 @@ function App() {
                 Freestyle
               </button>
             </div>
-          </div>
+          </div> */}
 
-          <div>
-            <button 
-              onClick={sendToServer} 
-              disabled={loading} 
-              style={{ margin: '1em 0', padding: '10px 20px', fontSize: '16px' }}
-            >
-              {loading ? 'Sending...' : '📤 Analyze'}
-            </button>
-          </div>
+          {!loading && (
+            <div>
+              <button 
+                onClick={sendToServer} 
+                style={{ margin: '1em 0', padding: '10px 20px', fontSize: '16px' }}
+              >
+                📤 Analyze
+              </button>
+            </div>
+          )}
         </div>
       )}
       
@@ -197,17 +199,18 @@ function App() {
             animation: 'spin 1s linear infinite' 
           }} />
           <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-          <div>Sending to server...</div>
+          <div>Analyzing...</div>
         </div>
       )}
       
       {serverResponse && (
-        <div style={{ margin: '1em 0', background: '#f0f0f0', padding: '1em', borderRadius: '8px' }}>
-          <h3>Server Response:</h3>
-          <div style={{ whiteSpace: 'pre-line', fontSize: '14px' }}>
-            {serverResponse}
+                  <div style={{ margin: '1em 0', background: '#f0f0f0', padding: '1em', borderRadius: '8px' }}>
+            <h3>Server Response:</h3>
+            <div 
+              style={{ fontSize: '14px', lineHeight: '1.5' }}
+              dangerouslySetInnerHTML={{ __html: serverResponse }}
+            />
           </div>
-        </div>
       )}
       
       {error && (

@@ -59,7 +59,7 @@ app.post('/upload-inventory', upload.single('image'), async (req: Request, res: 
   const eyepopResults = await callEyepop(imageBuffer)
   console
   const oxenResult = await chatWithOxen(`
-    Give a bulleted list of the number of items in this scene. Don't use special formatting. Just - for the bullets and newlines.:
+    You are an inventory management system, give a list of the items in the message formatted as a nice html table typical of an advanced inventory management system UI. Do not include any other text in your response:
     ${JSON.stringify(eyepopResults)}  
   `)
   res.send(oxenResult);
