@@ -4,8 +4,7 @@ import { chatWithOxen } from './chatWithOxen.js';
 import multer from 'multer';
 import { EyePop } from '@eyepop.ai/eyepop'
 import 'dotenv/config'
-
-
+import { callEyepop } from './callEyepop.js';
 
 
 const app = express();
@@ -35,47 +34,36 @@ app.post('/chat', async (req: Request, res: Response) => {
 // Use multer with memory storage to get the file buffer directly
 const upload = multer({ storage: multer.memoryStorage() });
 
-app.post('/upload', upload.single('image'), async (req: Request, res: Response) => {
+app.post('/upload-story', upload.single('image'), async (req: Request, res: Response) => {
   if (!req.file) {
     return res.status(400).send('No file uploaded');
   }
 
   const imageBuffer: Buffer = req.file.buffer;
+  const eyepopResults = await callEyepop(imageBuffer)
+  const oxenResult = await chatWithOxen(`
+    Give an interesting summary of the bottles and cups in this scene: 
+    ${JSON.stringify(eyepopResults)}  
+  `)
+  res.send(oxenResult);
 
-  console.log('Image buffer size:', imageBuffer.length);
+});
 
-  const EYEPOP_SECRET_KEY = process.env.EYEPOP_SECRET_KEY
-  if (!EYEPOP_SECRET_KEY) {
-    throw Error("no secret key");
-  }
-  const EYEPOP_POP_ID = process.env.EYEPOP_POP_ID
-  if (!EYEPOP_POP_ID) {
-    throw Error("no eyepop id key");
+
+app.post('/upload-inventory', upload.single('image'), async (req: Request, res: Response) => {
+  if (!req.file) {
+    return res.status(400).send('No file uploaded');
   }
 
-  // You can now process the buffer (e.g., save to disk, upload to S3, etc.)
-  const endpoint = EyePop.workerEndpoint({
-    // By default the SDK will use these environment vars. This can be omitted
-    popId: EYEPOP_POP_ID,
-    // By default the SDK will use these environment vars. This can be omitted
-    auth: { secretKey: EYEPOP_SECRET_KEY },
-  });
-  await endpoint.connect()
-  try {
-    // let results = await endpoint.process({path: example_image_path})
-    let resultsP = await endpoint.process({ stream: imageBuffer, mimeType: 'image/jpeg' });
-    let results = [];
-    for await (let result of resultsP) {
-      results.push(result);
-    }
-    res.send(results);
-  } catch (e) {
-    console.error("Error uploading");
-    console.error(e);
-  }
-  finally {
-    await endpoint.disconnect()
-  }
+  const imageBuffer: Buffer = req.file.buffer;
+  const eyepopResults = await callEyepop(imageBuffer)
+  console
+  const oxenResult = await chatWithOxen(`
+    Give a simple summary of this scene of bottles and cups only: 
+    ${JSON.stringify(eyepopResults)}  
+  `)
+  res.send(oxenResult);
+
 });
 
 app.listen(port, () => {

@@ -33,7 +33,7 @@
         formData.append('image', blob, 'webcam.jpg');
 
         try {
-          const response = await fetch('http://localhost:8080/upload', {
+          const response = await fetch('http://localhost:8080/upload-story', {
             method: 'POST',
             body: formData,
           });
