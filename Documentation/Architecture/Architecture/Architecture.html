@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>iPhone Image Analysis System Architecture</title>
+</head>
+
+<body>
+
+    <h1>iPhone Image Analysis System Architecture</h1>
+
+    <h2>Logical view</h2>
+
+    <p>This system enables iPhone users to capture images through a React web application and receive automated analysis results. The React frontend runs on the iPhone, captures images using the device camera, and sends them to Eyepop.ai for analysis. The React client then sends the image data to a NodeJS server, which forwards it to Oxen.ai for further analysis. The NodeJS server then returns the analysis results to the React client for display to the user.</p>
+
+    <diagram-widget fileName="SystemFlow.md"></diagram-widget>
+
+    <h2>Deployment view</h2>
+
+    <p>The backend will be deployed to Google Cloud Run.</p>
+
+    <p>The frontend will be deployed to dedicated GoDaddy domain using FileZilla.</p>
+
+
+</body>
+
+</html>
