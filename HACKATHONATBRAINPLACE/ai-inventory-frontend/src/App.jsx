@@ -4,7 +4,7 @@ import './App.css'
 // Global configuration
 const IS_DEVELOPMENT = true; // Set to false for production
 const DEV_SERVER_URL = 'http://localhost:8080';
-const PROD_SERVER_URL = 'https://your-production-domain.com'; // Update with your production URL
+const PROD_SERVER_URL = 'https://hackfrontier-server-685366172503.us-central1.run.app'; // Update with your production URL
 const SERVER_URL = IS_DEVELOPMENT ? DEV_SERVER_URL : PROD_SERVER_URL;
 
 function App() {
@@ -13,6 +13,7 @@ function App() {
   const [error, setError] = useState('')
   const [serverResponse, setServerResponse] = useState(null)
   const [streaming, setStreaming] = useState(false)
+  const [analysisMode, setAnalysisMode] = useState('Inventory')
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
 
@@ -73,8 +74,11 @@ function App() {
         const formData = new FormData()
         formData.append('image', blob, 'webcam.jpg')
 
+        // Choose endpoint based on analysis mode
+        const endpoint = analysisMode === 'Inventory' ? '/upload-inventory' : '/upload-story'
+
         try {
-          const response = await fetch(`${SERVER_URL}/upload`, {
+          const response = await fetch(`${SERVER_URL}${endpoint}`, {
             method: 'POST',
             body: formData,
           })
@@ -105,7 +109,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Image Analysis App</h1>
+      <h1>Total Shelf AI</h1>
       
       {!streaming && !image && (
         <button onClick={startCamera} style={{ margin: '1em 0', padding: '10px 20px', fontSize: '16px' }}>
@@ -129,13 +133,53 @@ function App() {
       {image && (
         <div>
           <img src={image} alt="Captured" style={{ maxWidth: '100%', width: '400px', margin: '1em 0' }} />
+          
+          {/* Analysis Mode Toggle */}
+          <div style={{ margin: '1em 0' }}>
+            <div style={{ marginBottom: '0.5em', fontSize: '14px', fontWeight: 'bold' }}>
+              Analysis Mode:
+            </div>
+            <div style={{ display: 'flex', gap: '0.5em', justifyContent: 'center' }}>
+              <button
+                onClick={() => setAnalysisMode('Inventory')}
+                style={{
+                  padding: '8px 16px',
+                  fontSize: '14px',
+                  border: '2px solid #007AFF',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  backgroundColor: analysisMode === 'Inventory' ? '#007AFF' : 'white',
+                  color: analysisMode === 'Inventory' ? 'white' : '#007AFF',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Inventory
+              </button>
+              <button
+                onClick={() => setAnalysisMode('Freestyle')}
+                style={{
+                  padding: '8px 16px',
+                  fontSize: '14px',
+                  border: '2px solid #007AFF',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  backgroundColor: analysisMode === 'Freestyle' ? '#007AFF' : 'white',
+                  color: analysisMode === 'Freestyle' ? 'white' : '#007AFF',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Freestyle
+              </button>
+            </div>
+          </div>
+
           <div>
             <button 
               onClick={sendToServer} 
               disabled={loading} 
               style={{ margin: '1em 0', padding: '10px 20px', fontSize: '16px' }}
             >
-              {loading ? 'Sending...' : '📤 Send to Server'}
+              {loading ? 'Sending...' : '📤 Analyze'}
             </button>
           </div>
         </div>
@@ -160,9 +204,9 @@ function App() {
       {serverResponse && (
         <div style={{ margin: '1em 0', background: '#f0f0f0', padding: '1em', borderRadius: '8px' }}>
           <h3>Server Response:</h3>
-          <pre style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>
-            {JSON.stringify(serverResponse, null, 2)}
-          </pre>
+          <div style={{ whiteSpace: 'pre-line', fontSize: '14px' }}>
+            {serverResponse}
+          </div>
         </div>
       )}
       
